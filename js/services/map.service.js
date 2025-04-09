@@ -24,7 +24,7 @@ function initMap(lat = 32.0749831, lng = 34.9120554) {
         })
 }
 
-function panTo({lat, lng, zoom=15}) {
+function panTo({ lat, lng, zoom = 15 }) {
     const laLatLng = new google.maps.LatLng(lat, lng)
     gMap.panTo(laLatLng)
     gMap.setZoom(zoom)
@@ -34,7 +34,7 @@ function lookupAddressGeo(geoOrAddress) {
     // Sample URLs:
     // const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}`
     // const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=40.714224,-73.961452`
-
+    
     var url = `https://maps.googleapis.com/maps/api/geocode/json?key=${API_KEY}&`
     url += (geoOrAddress.lat) ? `latlng=${geoOrAddress.lat},${geoOrAddress.lng}` :
         `address=${geoOrAddress}`
@@ -45,7 +45,7 @@ function lookupAddressGeo(geoOrAddress) {
             // console.log('RES IS', res)
             if (!res.results.length) return new Error('Found nothing')
             res = res.results[0]
-            const {formatted_address, geometry} = res
+            const { formatted_address, geometry } = res
 
             const geo = {
                 address: formatted_address.substring(formatted_address.indexOf(' ')).trim(),

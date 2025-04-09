@@ -32,7 +32,7 @@ export const locService = {
     setSortBy,
     getLocCountByRateMap
 }
-
+//TODO: here is where we filter!
 function query() {
     return storageService.query(DB_KEY)
         .then(locs => {
@@ -143,7 +143,7 @@ function _createDemoLocs() {
                 }
             }
         ]
-
+    debugger
     locs = locs.map(_createLoc)
     utilService.saveToStorage(DB_KEY, locs)
 }

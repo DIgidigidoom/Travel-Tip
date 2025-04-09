@@ -72,6 +72,9 @@ function elapsedTime(pastMs) {
 function updateQueryParams(queryParamsObj) {
     var queryParams = `?`
     for (let paramName in queryParamsObj){
+        // console.log(paramName)
+        console.log(queryParamsObj)
+
         if (queryParamsObj[paramName] !== undefined) {
             queryParams += `${paramName}=${queryParamsObj[paramName]}&`
         }
@@ -93,7 +96,7 @@ function getColors() {
     '#D32F2F',
     '#C62828']    
 }
-
+//TODO: get distance func!
 function getDistance(latLng1, latLng2, unit) {
     if ((latLng1.lat == latLng2.lat) && (latLng1.lng == latLng2.lng)) {
         return 0

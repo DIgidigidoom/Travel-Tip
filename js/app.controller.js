@@ -30,6 +30,8 @@ function onInit() {
             console.error('OOPs:', err)
             flashMsg('Cannot init map')
         })
+
+        
 }
 
 function renderLocs(locs) {
@@ -123,7 +125,7 @@ function loadAndRenderLocs() {
             flashMsg('Cannot load locations')
         })
 }
-
+//TODO: panning to user controler func
 function onPanToUserPos() {
     mapService.getUserPosition()
         .then(latLng => {
@@ -253,7 +255,8 @@ function onSetSortBy() {
     loadAndRenderLocs()
 }
 
-function onSetFilterBy({ txt, minRate }) {
+function onSetFilterBy({ txt, minRate,}) {
+    
     const filterBy = locService.setFilterBy({ txt, minRate: +minRate })
     utilService.updateQueryParams(filterBy)
     loadAndRenderLocs()
