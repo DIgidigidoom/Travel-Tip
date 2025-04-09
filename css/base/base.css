@@ -2,6 +2,7 @@ body {
     background-color: var(--bg1);
     color: #eee;
     overflow-x: hidden;
+    transition: 0.8s;
 }
 
 header {

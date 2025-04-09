@@ -414,15 +414,18 @@ function onChangeTheme(newColor) {
     const elHeader = document.querySelector('header')
     const elLocsContainer = document.querySelector('.locs-container')
     const elLocFilter = document.querySelector('.loc-filter')
+    const elSelectedLoc = document.querySelector('.selected-loc')
 
     const headerColor = _shadeColor(newColor, -20)
     const locsContainerColor = _shadeColor(newColor, 20)
     const locsFilterColor = _shadeColor(newColor, -30)
+    
 
     elBody.style.backgroundColor = newColor
     elHeader.style.backgroundColor = headerColor
     elLocsContainer.style.backgroundColor = locsContainerColor
     elLocFilter.style.backgroundColor = locsFilterColor
+    elSelectedLoc.style.backgroundColor = locsContainerColor
     
 
 
