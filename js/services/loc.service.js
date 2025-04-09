@@ -30,7 +30,8 @@ export const locService = {
     save,
     setFilterBy,
     setSortBy,
-    getLocCountByRateMap
+    getLocCountByRateMap,
+    getLocCountBylastUpdated
 }
 //TODO: here is where we filter!
 function query() {
@@ -38,7 +39,7 @@ function query() {
         .then(locs => {
             if (gFilterBy.txt) {
                 const regex = new RegExp(gFilterBy.txt, 'i')
-                locs = locs.filter(loc => regex.test(loc.name) || regex.test(loc.geo.address) )
+                locs = locs.filter(loc => regex.test(loc.name) || regex.test(loc.geo.address))
             }
             if (gFilterBy.minRate) {
                 locs = locs.filter(loc => loc.rate >= gFilterBy.minRate)
@@ -94,7 +95,30 @@ function getLocCountByRateMap() {
                 return map
             }, { high: 0, medium: 0, low: 0 })
             locCountByRateMap.total = locs.length
+            console.log(locCountByRateMap)
             return locCountByRateMap
+        })
+}
+function getLocCountBylastUpdated() {
+    return storageService.query(DB_KEY)
+        .then(locs => {
+            const locCountByLastUpdated = locs.reduce((map, loc) => {
+                const now = new Date()
+                const lastUpdated = loc.updatedAt
+                console.log(lastUpdated)
+                if (!lastUpdated) {
+                    map.never++
+                } else {
+                    const diffMs = now - lastUpdated
+                    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+                    if (diffDays === 0) map.today++
+                    else map.past++
+                }
+                return map
+            }, { never: 0, today: 0, past: 0 })
+            locCountByLastUpdated.total = locs.length
+            console.log(locCountByLastUpdated)
+            return locCountByLastUpdated
         })
 }
 
@@ -143,7 +167,7 @@ function _createDemoLocs() {
                 }
             }
         ]
-    
+
     locs = locs.map(_createLoc)
     utilService.saveToStorage(DB_KEY, locs)
 }
