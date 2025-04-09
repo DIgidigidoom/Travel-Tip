@@ -36,8 +36,9 @@
 }
 
 .form-search {
-    display: block;
-    text-align: end;
+    display: flex;
+    justify-content: end;
+    align-items: center;
 }
 
 .btn-user-pos {

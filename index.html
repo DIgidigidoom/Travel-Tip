@@ -25,7 +25,11 @@
             <button title="Search">🔍</button>
             <button type="button" title="My Position" onclick="app.onPanToUserPos()" class="btn-user-pos">&nbsp;
             </button>
+            <div class="theme-picker">
+                <input type="color" onchange="app.onChangeTheme(this.value)" value="#483d8b" name="color-picker" id="color-picker">
+            </div>
         </form>
+        
     </header>
     <main>
         <div class="map"></div>
@@ -71,8 +75,10 @@
                         <div class="pie"></div>
                         <ul class="legend"></ul>
                     </div>
+                    
                 </section>
             </section>
+            
         </div>
     </main>
     <dialog id="loc-dialog">

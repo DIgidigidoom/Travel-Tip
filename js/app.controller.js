@@ -21,6 +21,7 @@ window.app = {
     onSetFilterBy,
     onSubmitLoc,
     onCloseDialog,
+    onChangeTheme
 }
 
 function onInit() {
@@ -407,3 +408,38 @@ function cleanStats(stats) {
     }, [])
     return cleanedStats
 }
+
+function onChangeTheme(newColor) {
+    const elBody = document.querySelector('body')
+    const elHeader = document.querySelector('header')
+    const elLocsContainer = document.querySelector('.locs-container')
+    const elLocFilter = document.querySelector('.loc-filter')
+
+    const headerColor = _shadeColor(newColor, -20)
+    const locsContainerColor = _shadeColor(newColor, 20)
+    const locsFilterColor = _shadeColor(newColor, -30)
+
+    elBody.style.backgroundColor = newColor
+    elHeader.style.backgroundColor = headerColor
+    elLocsContainer.style.backgroundColor = locsContainerColor
+    elLocFilter.style.backgroundColor = locsFilterColor
+    
+
+
+}
+
+function _shadeColor(color, percent) {
+    const num = parseInt(color.replace("#", ""), 16);
+    const amt = Math.round(2.55 * percent);
+  
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+  
+    return "#" + (
+      0x1000000 +
+      (Math.min(255, Math.max(0, R)) << 16) +
+      (Math.min(255, Math.max(0, G)) << 8) +
+      Math.min(255, Math.max(0, B))
+    ).toString(16).slice(1);
+  }
