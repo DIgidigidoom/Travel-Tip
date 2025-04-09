@@ -10,11 +10,12 @@
 
 <body>
     <header>
-        
+
         <h1>Travel-Tip</h1>
         <section class="selected-loc">
             <h2>Location: <span class="loc-name"></span> <span class="loc-rate"></span></h2>
             <h4 class="loc-address"></h4>
+            <p class="loc-distance"></p>
             <button onclick="app.onCopyLoc()">Copy location</button>
             <button onclick="app.onShareLoc()">Share location</button>
             <input name="loc-copier" />
@@ -38,7 +39,8 @@
                     <div>
                         <label>
                             Min Rate:
-                            <input name="filter-by-rate" type="range" min="0" max="5" value="0" class="filter-rate-range"
+                            <input name="filter-by-rate" type="range" min="0" max="5" value="0"
+                                class="filter-rate-range"
                                 onchange="this.title=this.value;app.onSetFilterBy({minRate: this.value})" />
                         </label>
                     </div>
@@ -73,6 +75,29 @@
             </section>
         </div>
     </main>
+    <dialog id="loc-dialog">
+        <form method="dialog" class="loc-form" onsubmit="app.onSubmitLoc(event)">
+            <h3 id="dialog-title">Add/Edit Location</h3>
+
+            <label>
+                Name:
+                <input type="text" name="name" required />
+            </label>
+
+            <label>
+                Rate:
+                <input type="number" name="rate" min="1" max="5" required />
+            </label>
+
+            <input type="hidden" name="loc-id" />
+            <input type="hidden" name="geo" />
+
+            <menu>
+                <button type="submit">Save</button>
+                <button type="button" onclick="app.onCloseDialog()">Cancel</button>
+            </menu>
+        </form>
+    </dialog>
     <pre class="debug" hidden></pre>
     <div class="user-msg"></div>
     <script type="module" src="js/app.controller.js"></script>

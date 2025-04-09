@@ -19,6 +19,8 @@ window.app = {
     onShareLoc,
     onSetSortBy,
     onSetFilterBy,
+    onSubmitLoc,
+    onCloseDialog,
 }
 
 function onInit() {
@@ -34,7 +36,7 @@ function onInit() {
             flashMsg('Cannot init map')
         })
 
-        
+
 }
 
 function renderLocs(locs) {
@@ -46,7 +48,7 @@ function renderLocs(locs) {
         <li class="loc ${className}" data-id="${loc.id}">
             <h4>  
                 <span>${loc.name}</span>
-                <span>${gUserPos ? `Distance:${utilService.getDistance(gUserPos ,loc.geo, 'K')} KM` : ''}</span>
+                <span>${gUserPos ? `Distance:${utilService.getDistance(gUserPos, loc.geo, 'K')} KM` : ''}</span>
                 <span title="${loc.rate} stars">${'★'.repeat(loc.rate)}</span>
             </h4>
             <p class="muted">
@@ -76,9 +78,9 @@ function renderLocs(locs) {
 
 function onRemoveLoc(locId) {
     const confirmResult = confirm('Are You Sure?')
-    if(!confirmResult) return
+    if (!confirmResult) return
 
-   
+
     locService.remove(locId)
         .then(() => {
             flashMsg('Location removed')
@@ -105,25 +107,73 @@ function onSearchAddress(ev) {
 }
 
 function onAddLoc(geo) {
-    const locName = prompt('Loc name', geo.address || 'Just a place')
-    if (!locName) return
+    const dialog = document.getElementById('loc-dialog')
+    dialog.querySelector('[name="name"]').value = geo.address || ''
+    dialog.querySelector('[name="rate"]').value = 3
+    dialog.querySelector('[name="loc-id"]').value = ''
+    dialog.querySelector('[name="geo"]').value = JSON.stringify(geo)
+
+    document.getElementById('dialog-title').innerText = 'Add Location'
+
+    dialog.showModal()
+
+    // const locName = prompt('Loc name', geo.address || 'Just a place')
+    // if (!locName) return
+
+    // const loc = {
+    //     name: locName,
+    //     rate: +prompt(`Rate (1-5)`, '3'),
+    //     geo
+    // }
+    // locService.save(loc)
+    //     .then((savedLoc) => {
+    //         flashMsg(`Added Location (id: ${savedLoc.id})`)
+    //         utilService.updateQueryParams({ locId: savedLoc.id })
+    //         loadAndRenderLocs()
+    //     })
+    //     .catch(err => {
+    //         console.error('OOPs:', err)
+    //         flashMsg('Cannot add location')
+    //     })
+}
+
+function onSubmitLoc(ev) {
+    ev.preventDefault()
+    const form = ev.target
+
+    const name = form.name.value
+    const rate = +form.rate.value
+    const geo = JSON.parse(form.geo.value)
+    const locId = form['loc-id'].value
 
     const loc = {
-        name: locName,
-        rate: +prompt(`Rate (1-5)`, '3'),
+        id: locId || undefined,
+        name,
+        rate,
         geo
     }
+
     locService.save(loc)
-        .then((savedLoc) => {
-            flashMsg(`Added Location (id: ${savedLoc.id})`)
+        .then(savedLoc => {
+            flashMsg(`Location ${loc.id ? 'updated' : 'added'} (id: ${savedLoc.id})`)
+            form.reset()
+            form.closest('dialog').close()
             utilService.updateQueryParams({ locId: savedLoc.id })
             loadAndRenderLocs()
         })
         .catch(err => {
             console.error('OOPs:', err)
-            flashMsg('Cannot add location')
+            flashMsg('Cannot save location')
         })
+
+    console.log(loc)
 }
+
+function onCloseDialog() {
+    const dialog = document.getElementById('loc-dialog')
+    dialog.close()
+}
+
 
 function loadAndRenderLocs() {
     locService.query()
@@ -149,25 +199,47 @@ function onPanToUserPos() {
         })
 }
 
+//TODO:Make this with modal
 function onUpdateLoc(locId) {
     locService.getById(locId)
         .then(loc => {
-            const rate = prompt('New rate?', loc.rate)
-            if (rate && rate !== loc.rate) {
-                loc.rate = rate
-                locService.save(loc)
-                    .then(savedLoc => {
-                        flashMsg(`Rate was set to: ${savedLoc.rate}`)
-                        loadAndRenderLocs()
-                    })
-                    .catch(err => {
-                        console.error('OOPs:', err)
-                        flashMsg('Cannot update location')
-                    })
+            const dialog = document.getElementById('loc-dialog')
 
-            }
+            
+            dialog.querySelector('[name="name"]').value = loc.name
+            dialog.querySelector('[name="rate"]').value = loc.rate
+            dialog.querySelector('[name="loc-id"]').value = loc.id
+            dialog.querySelector('[name="geo"]').value = JSON.stringify(loc.geo)
+
+            
+            document.getElementById('dialog-title').innerText = 'Edit Location'
+
+            
+            dialog.showModal()
+        })
+        .catch(err => {
+            console.error('OOPs:', err)
+            flashMsg('Cannot load location for editing')
         })
 }
+
+        // .then(loc => {
+        //     const rate = prompt('New rate?', loc.rate)
+        //     if (rate && rate !== loc.rate) {
+        //         loc.rate = rate
+        //         locService.save(loc)
+        //             .then(savedLoc => {
+        //                 flashMsg(`Rate was set to: ${savedLoc.rate}`)
+        //                 loadAndRenderLocs()
+        //             })
+        //             .catch(err => {
+        //                 console.error('OOPs:', err)
+        //                 flashMsg('Cannot update location')
+        //             })
+
+        //     }
+        // })
+
 
 function onSelectLoc(locId) {
     return locService.getById(locId)
@@ -191,6 +263,11 @@ function displayLoc(loc) {
     el.querySelector('.loc-rate').innerHTML = '★'.repeat(loc.rate)
     el.querySelector('[name=loc-copier]').value = window.location
     el.classList.add('show')
+
+    if (gUserPos) {
+        el.querySelector('.loc-distance').innerHTML =
+            `Distance: ${utilService.getDistance(gUserPos, loc.geo, 'K')} KM`
+    }
 
     utilService.updateQueryParams({ locId: loc.id })
 }
@@ -234,7 +311,7 @@ function getFilterByFromQueryParams() {
     const queryParams = new URLSearchParams(window.location.search)
     const txt = queryParams.get('txt') || ''
     const minRate = queryParams.get('minRate') || 0
-    locService.setFilterBy({txt, minRate})
+    locService.setFilterBy({ txt, minRate })
 
     document.querySelector('input[name="filter-by-txt"]').value = txt
     document.querySelector('input[name="filter-by-rate"]').value = minRate
@@ -254,7 +331,7 @@ function onSetSortBy() {
 
     const sortBy = {}
     sortBy[prop] = (isDesc) ? -1 : 1
-    
+
 
     // Shorter Syntax:
     // const sortBy = {
@@ -265,8 +342,8 @@ function onSetSortBy() {
     loadAndRenderLocs()
 }
 
-function onSetFilterBy({ txt, minRate,}) {
-    
+function onSetFilterBy({ txt, minRate, }) {
+
     const filterBy = locService.setFilterBy({ txt, minRate: +minRate })
     utilService.updateQueryParams(filterBy)
     loadAndRenderLocs()
@@ -274,10 +351,10 @@ function onSetFilterBy({ txt, minRate,}) {
 
 function renderLocStats() {
     locService.getLocCountByRateMap().then(stats => {
-        handleStats(stats, 'loc-stats-rate')  
+        handleStats(stats, 'loc-stats-rate')
     })
     locService.getLocCountBylastUpdated().then(stats => {
-        handleStats(stats, 'loc-stats-updated')  
+        handleStats(stats, 'loc-stats-updated')
     })
 }
 
